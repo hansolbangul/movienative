@@ -1,11 +1,9 @@
 import React from 'react';
 import styled from 'styled-components/native';
 import Poster from './Poster';
-import Votes from './Votes';
 
 const HMovie = styled.View`
   padding: 0px 30px;
-  margin-bottom: 30px;
   flex-direction: row;
 `;
 
@@ -21,7 +19,7 @@ const Overview = styled.Text`
 `;
 
 const Release = styled.Text`
-  color: ${(props) => props.theme.testColor};
+  color: ${(props) => props.theme.textColor};
   font-size: 12px;
   margin-vertical: 10px;
   font-weight: 500;
@@ -36,5 +34,37 @@ const Title = styled.Text`
 
 interface HMediaProps {
   posterPath: string;
-  originalTitle: 
+  originalTitle: string;
+  overview: string;
+  releaseDate?: string;
+  voteAverage?: number;
 }
+
+const HMedia: React.FC<HMediaProps> = ({
+  posterPath,
+  originalTitle,
+  overview,
+  releaseDate,
+  voteAverage,
+}) => {
+  return (
+    <HMovie>
+      <Poster path={posterPath} />
+      <HColumn>
+        <Title>{originalTitle}</Title>
+        <Release>
+          {new Date(releaseDate).toLocaleDateString('ko', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+          })}
+        </Release>
+        <Overview>
+          {overview !== '' && overview.length > 80 ? `${overview.slice(0, 140)}...` : overview}
+        </Overview>
+      </HColumn>
+    </HMovie>
+  );
+};
+
+export default HMedia;
