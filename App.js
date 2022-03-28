@@ -6,11 +6,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { Asset, useAssets } from 'expo-asset';
 import { loadAsync } from 'expo-font';
 import { NavigationContainer } from '@react-navigation/native';
-import Tabs from './navigation/Tabs';
-import Stack from './navigation/Stack';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import Root from './navigation/Root';
 import { ThemeProvider } from 'styled-components/native';
 import { darkTheme, lightTheme } from './styled';
+
+const queryClient = new QueryClient();
 
 export default function App() {
   const [assets] = useAssets([require('./ponyo008.jpg')]);
@@ -21,10 +22,12 @@ export default function App() {
     return <AppLoading />;
   }
   return (
-    <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
-      <NavigationContainer>
-        <Root />
-      </NavigationContainer>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
+        <NavigationContainer>
+          <Root />
+        </NavigationContainer>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
