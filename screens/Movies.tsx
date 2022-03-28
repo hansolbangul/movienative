@@ -7,9 +7,7 @@ import Slide from '../Components/Slide';
 import VMedia from '../Components/VMedia';
 import HMedia from '../Components/HMedia';
 import { QueryClient, useQuery, useQueryClient } from 'react-query';
-import { moviesApi } from '../api';
-
-const Container = styled.ScrollView``;
+import { MovieResponse, moviesApi } from '../api';
 
 // 현 기기의 screen 값에 따라 변하게 하기 위해 사용
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -57,17 +55,17 @@ const Movies: React.FC<NativeStackScreenProps<any, 'Movies'>> = () => {
     isLoading: nowPlayingLoading,
     data: nowPlayingData,
     isRefetching: isRefetchingNowPlaying,
-  } = useQuery(['movies', 'nowPlaying'], moviesApi.nowPlaying);
+  } = useQuery<MovieResponse>(['movies', 'nowPlaying'], moviesApi.nowPlaying);
   const {
     isLoading: upcomingLoading,
     data: upcomingData,
     isRefetching: isRefetchingUpcoming,
-  } = useQuery(['movies', 'upcoming'], moviesApi.upcoming);
+  } = useQuery<MovieResponse>(['movies', 'upcoming'], moviesApi.upcoming);
   const {
     isLoading: trendingLoading,
     data: trendingData,
     isRefetching: isRefetchingTrending,
-  } = useQuery(['movies', 'trending'], moviesApi.trending);
+  } = useQuery<MovieResponse>(['movies', 'trending'], moviesApi.trending);
 
   const onRefresh = async () => {
     queryClient.refetchQueries(['movies']);
@@ -96,7 +94,7 @@ const Movies: React.FC<NativeStackScreenProps<any, 'Movies'>> = () => {
       <ActivityIndicator />
     </Loader>
   ) : (
-    <FlatList
+    upcomingData ? <FlatList
       refreshing={refreshing}
       onRefresh={onRefresh}
       ListHeaderComponent={
@@ -110,11 +108,11 @@ const Movies: React.FC<NativeStackScreenProps<any, 'Movies'>> = () => {
             showsPagination={false}
             containerStyle={{ marginBottom: 30, width: '100%', height: SCREEN_HEIGHT / 4 }}
           >
-            {nowPlayingData.results.map((movie) => (
+            {nowPlayingData?.results.map((movie) => (
               <Slide
                 key={movie.id}
-                backdropPath={movie.backdrop_path}
-                posterPath={movie.poster_path}
+                backdropPath={movie.backdrop_path || ""}
+                posterPath={movie.poster_path || ""}
                 originalTitle={movie.original_title}
                 voteAverage={movie.vote_average}
                 overview={movie.overview}
@@ -123,7 +121,7 @@ const Movies: React.FC<NativeStackScreenProps<any, 'Movies'>> = () => {
           </Swiper>
           <ListContainot>
             <ListTitle>Trending Movies</ListTitle>
-            <TrendingScroll
+            {trendingData ? <TrendingScroll
               data={trendingData.results}
               horizontal
               keyExtractor={movieKeyExtractor}
@@ -131,7 +129,7 @@ const Movies: React.FC<NativeStackScreenProps<any, 'Movies'>> = () => {
               contentContainerStyle={{ paddingHorizontal: 30 }}
               ItemSeparatorComponent={VSeparator}
               renderItem={renderHMedia}
-            ></TrendingScroll>
+            /> : null}
           </ListContainot>
           <ComingSoonTitle>Coming soon</ComingSoonTitle>
         </>
@@ -140,8 +138,8 @@ const Movies: React.FC<NativeStackScreenProps<any, 'Movies'>> = () => {
       keyExtractor={movieKeyExtractor}
       ItemSeparatorComponent={HSeparator}
       renderItem={renderHMidea}
-    />
-  );
+    /> : null
+  ) 
 };
 
 export default Movies;
